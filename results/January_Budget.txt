@@ -1,0 +1,11 @@
+
+  Your total for January is: -$299.05
+  Your total income for January is: $232.28
+
+   -You spent $91.01 on Luxuries, which is 39% of your income.
+   -You spent $289.93 on Necessary_Expenses, which is 125% of your income.
+   -You spent $150.39 on Bills, which is 65% of your income.
+
+   -Each day in January you spent $17.14 and earned $7.49,
+    which is a daily net total of -$9.65.
+
