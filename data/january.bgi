@@ -1,5 +1,5 @@
 January 31
-Income,Bills,Necessary_Expenses,Luxuries,
+Income, Bills, Necessary_Expenses, Luxuries
 Income 2 Aroma_Gig 65
 Bills 25 Comcast -40.89
 Bills 1 Parking -76.95
@@ -20,7 +20,7 @@ Luxuries 13 Scarface_Rental -2.99
 Necessary_Expenses 15 Laundry -4.50
 Necessary_Expenses 16 Textbook_Return -20.07
 Necessary_Expenses 16 Circuits_Textbook_Rental -77.06
-Luxuries 18 Jasmine_Tes -2
+Luxuries 18 Jasmine_Tea -2
 Income 22 Retirement 77.28
 Necessary_Expenses 23 Laundry -5
 Luxuries 24 Arti's -14

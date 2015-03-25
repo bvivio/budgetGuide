@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.io.PrintStream;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
+import java.lang.RuntimeException;
 import java.util.HashSet;
 
 class CommandInterpreter {
@@ -98,6 +99,9 @@ class CommandInterpreter {
 	case "save":
 	    saveCommand(coms);
 	    return;
+	case "help":
+	    helpCommand();
+	    return;
 	default:
 	    _output.printf("ERROR: unknown command%n");
 	    statement();
@@ -108,6 +112,23 @@ class CommandInterpreter {
     private void quitCommand() {
 	_output.print("Closing budgetGuide...");
 	_end = true;
+    }
+
+    /** Prints out the list of all commands. */
+    private void helpCommand() {
+	try {
+	    Scanner helpFile = new Scanner(new FileReader("help.txt"));
+	    String line = null;
+	    _output.println();
+	    while (helpFile.hasNextLine()) {
+		line = helpFile.nextLine();
+		_output.println(line);
+	    }
+	    helpFile.close();
+	    _output.println();
+	} catch (FileNotFoundException e) {
+	    _output.println("ERROR: help.txt not found");
+	}
     }
 
     /** Reads and executes a load command, which reads in the .bgi files
@@ -128,35 +149,56 @@ class CommandInterpreter {
 	    } catch (FileNotFoundException e) {
 		_output.printf("ERROR: cannot find file %s%n",
 			       fileNames[i]);
-	    } catch (Exception e) {
-		_output.printf("ERROR: file %s has incorrect formatting%n",
-			       fileNames[i]);
+	    } catch (RuntimeException e) {
+		_output.printf("ERROR: file %s could not be interpreted;%n       %s",
+			       fileNames[i], e.getMessage());
 	    }
 	}
     }
 
     /** Reads the file IN and returns all the data as a Month object
-     *  iff _budget doesn't already contain a Month with this file's
-     *  month name. */
+     *  if _budget doesn't already contain a Month with this file's
+     *  month name, or null otherwise. Also returns null if the file
+     *  IN does not include an 'Income' category. */
     private Month processFile(Scanner in) {
-	String monthName = in.next();
-	if (_monthNames.contains(monthName)) {
-	    _output.printf("ERROR: budget already contains month %s%n",
-			   monthName);
-	    return null;
-	}
-	Month month = new Month(monthName, in.nextInt());
-	in.nextLine();
-	String[] cats = in.nextLine().split(",");
-	for (String cat : cats) {
-	    month.addCat(cat);
-	}
+	int lineNum = 1;
+	String monthName;
+	Month month;
+	boolean containsIncome = false;
+	try {
+	    monthName = in.next();
+	    if (_monthNames.contains(monthName)) {
+		_output.printf("ERROR: budget already contains month %s%n",
+			       monthName);
+		return null;
+	    }
+	    month = new Month(monthName, in.nextInt());
+	    in.nextLine();
+	    lineNum++;
+	    String[] cats = in.nextLine().split(", ");
+	    for (String cat : cats) {
+		if (cat.equals("Income")) {
+		    containsIncome = true;
+		}
+		month.addCat(cat);
+	    }
+	    if (!containsIncome) {
+		_output.printf("ERROR: month %s has no 'Income' category%n",
+			       monthName);
+		return null;
+	    }
 	while (in.hasNextLine()) {
+	    lineNum++;
 	    String cat = in.next();
 	    int date = in.nextInt();
 	    String name = in.next();
 	    double amount = in.nextDouble();
 	    month.addItem(cat, name, date, amount);
+	}
+	} catch (Exception e) {
+	    String eMessage = String.format("line number %d has incorrect formatting%n",
+					    lineNum);
+	    throw new RuntimeException(eMessage);
 	}
 	_monthNames.add(monthName);
 	return month;

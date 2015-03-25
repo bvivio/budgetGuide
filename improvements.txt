@@ -1,0 +1,19 @@
+Improvements for budgetGuide 2.0:
+
+  1. Polish code
+       -Make sure all functions/objects have good documentation
+       -Simplify all print statements
+       -Try to optimize any functions
+
+  3. Reorganize report commands and make them more thorough
+       -report budget should include all info from report months and
+          a total budget breakdown
+       -Standardize the format for output so all report commands look alike
+
+Improvements for budgetGuide 3.0:
+
+  5. Implement a rm command to remove a Month or Category or single entry
+     in a Month.
+
+  6. Implement an add command to add a Month or Category or single entry in
+     a Month.

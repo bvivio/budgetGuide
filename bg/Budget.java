@@ -5,8 +5,6 @@ import java.util.List;
 
 class Budget {
 
-    /** My total amount from all months combined. */
-    private double _total = Double.MIN_VALUE;
     /** The list of my Months. */
     private ArrayList<Month> _months;
 
@@ -27,14 +25,10 @@ class Budget {
 
     /** Returns the total for the entire budget. */
     double getTotal() {
-	if (_total != Double.MIN_VALUE) {
-	    return _total;
-	}
 	double total = 0;
 	for (Month month : _months) {
 	    total += month.getTotal();
 	}
-	_total = total;
 	return total;
     }
 
