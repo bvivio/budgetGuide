@@ -102,6 +102,9 @@ class CommandInterpreter {
 	case "help":
 	    helpCommand();
 	    return;
+	case "clear":
+	    clearCommand();
+	    return;
 	default:
 	    _output.printf("ERROR: unknown command%n");
 	    statement();
@@ -129,6 +132,15 @@ class CommandInterpreter {
 	} catch (FileNotFoundException e) {
 	    _output.println("ERROR: help.txt not found");
 	}
+    }
+
+    /** Restarts the program by clearing all loaded data. */
+    private void clearCommand() {
+	_budget = new Budget();
+	_cats = new HashSet<String>();
+	_catNum = 0;
+	_monthNames = new HashSet<String>();
+	_output.println("Cleared all data");
     }
 
     /** Reads and executes a load command, which reads in the .bgi files
