@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    private static final String VERSION = "1.2";
+    private static final String VERSION = "1.3";
 
     public static void main(String[] args) {
 	System.out.printf("Welcome to budgetGuide version %s!%n", VERSION);

@@ -1,0 +1,1 @@
+javac bg/*.java
