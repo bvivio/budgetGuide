@@ -1,8 +1,15 @@
-Improvements for budgetGuide 3.0:
+Improvements for budgetGuide 4.0:
 
-  1. Extend remove command to remove a Category or single entry
-     in a Month.
+  1. Allow entire budget state to be saved as a .bg file that can be reloaded
+     using load budget statement
 
-  2. Implement an add command to add a new Month to the budget.
+Improvements for budgetGuide 5.0:
 
-  3. Implement an insert command to insert a new Item into a Month.
+  1. Implement two condition queries with and keyword.
+  2. Implement add and remove commands to add/remove a single item from a month
+     in the current budget.
+  3. Implement an add month command to add a new month into the budget.
+
+Improvements for budgetGuide 6.0:
+
+  1. Implement multiple budgets to be in the system at one time.

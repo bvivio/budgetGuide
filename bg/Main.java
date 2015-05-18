@@ -8,7 +8,7 @@ import java.util.Scanner;
 */
 public class Main {
 
-    private static final String VERSION = "2.0";
+    private static final String VERSION = "3.0";
 
     public static void main(String[] args) {
 	System.out.printf("Welcome to budgetGuide version %s!%n", VERSION);

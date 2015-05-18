@@ -19,6 +19,13 @@ print	months		    :   prints out the names of the .bgi files
 			        currently loaded inot the budget from
 				the loaded .bgi files
 
+select months where         :   prints the months in which the CATEGORY value
+       <CATEGORY>/Total/	or the monthly total or the expenditure total
+	    Expenditures        satisfies the condition with the COMPARATOR and
+       <COMPARATOR>		the VALUE
+       <VALUE>
+
+
 remove <month NAME>	    :   removes the specified month from the budget
        	      		    	if it is currently loaded. Note that a removed
 				month can be reloaded into the budget at any
