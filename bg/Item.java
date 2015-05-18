@@ -1,5 +1,10 @@
 package bg;
 
+/** An ITEM is a single purchase or deposit which has a name, a date
+ *  (an integer representing the day of the month), and an amount that
+ *  can be either positive or negative.
+ *  @author Brodie Vivio
+*/
 class Item {
 
     /** My name. */

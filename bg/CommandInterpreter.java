@@ -7,6 +7,13 @@ import java.io.FileNotFoundException;
 import java.lang.RuntimeException;
 import java.util.HashSet;
 
+/** The COMMANDINTERPRETER is the object for the CLI that the user
+ *  interacts with by typing valid bgSQL commands. The input and output streams
+ *  are by default set to the Standard Input and the Standard Output, but
+ *  there is a constructor that can be called to change the input and output
+ *  streams.
+ *  @author Brodie Vivio
+*/
 class CommandInterpreter {
 
     /** My input. */
@@ -19,9 +26,6 @@ class CommandInterpreter {
     private Budget _budget;
     /** The set of the names of all the categories in my _budget. */
     private HashSet<String> _cats;
-    /** The number of Months that my current set of Categories has
-     *  taken into account. Used for memoization purposes. */
-    private int _catNum;
     /** The set of the names of all my months. */
     private HashSet<String> _monthNames;
 
@@ -40,7 +44,6 @@ class CommandInterpreter {
 	_end = false;
 	_budget = new Budget();
 	_cats = new HashSet<String>();
-	_catNum = 0;
 	_monthNames = new HashSet<String>();
     }
 
@@ -62,16 +65,10 @@ class CommandInterpreter {
     /** Adds any new categories that have been added to any of the months
      *  in _budget to _cats. */
     private void collectCats() {
-	int numMonths = _budget.getMonths().size();
-	if (_catNum < numMonths) {
-	    for (Month month : _budget.getMonths()) {
-		for (String cat : month.getCats()) {
-		    if (!_cats.contains(cat)) {
-			_cats.add(cat);
-		    }
-		}
+	for (Month month : _budget.getMonths()) {
+	    for (String cat : month.getCats()) {
+		_cats.add(cat);
 	    }
-	    _catNum = numMonths;
 	}
     }
 
@@ -104,6 +101,9 @@ class CommandInterpreter {
 	    return;
 	case "clear":
 	    clearCommand();
+	    return;
+	case "remove":
+	    removeCommand(coms);
 	    return;
 	default:
 	    _output.printf("ERROR: unknown command%n");
@@ -138,9 +138,21 @@ class CommandInterpreter {
     private void clearCommand() {
 	_budget = new Budget();
 	_cats = new HashSet<String>();
-	_catNum = 0;
 	_monthNames = new HashSet<String>();
 	_output.println("Cleared all data");
+    }
+
+    /** Performs a remove command by removing a Month from the budget. */
+    private void removeCommand(String[] args) {
+	if (args.length != 2) {
+	    _output.println("ERROR: Invalid remove command");
+	}
+	if (!_monthNames.contains(args[1])) {
+	    _output.printf("ERROR: %s is not a loaded month%n", args[1]);
+	}
+	_budget.removeMonth(_budget.getMonth(args[1]));
+	_monthNames.remove(args[1]);
+        _output.printf("Removed %s from budget%n", args[1]);
     }
 
     /** Reads and executes a load command, which reads in the .bgi files
@@ -271,8 +283,14 @@ class CommandInterpreter {
 	} else {
 	    output.printf("  Your budget total is: $%.2f%n", res);
 	}
-	output.printf("  Your total income is: $%.2f%n",
-		      _budget.getTotal("Income"));
+	double totInc = _budget.getTotal("Income");
+	output.printf("  Your total income is: $%.2f%n", totInc);
+	double expend = res - totInc;
+	if (expend < 0) {
+	    output.printf("  Your total expenditures amounted to: $%.2f%n", -expend);
+	} else {
+	    output.printf("  Your total expenditures amounted to: $%.2f%n", expend);
+	}
 	reportMonthlyTotals(output);
 	output.println();
 	for (Month month : _budget.getMonths()) {
@@ -321,12 +339,18 @@ class CommandInterpreter {
 		String name = month.getName();
 		double total = month.getTotal();
 		double income = month.getTotal("Income");
+		double expend = total - income;
 		if (total < 0) {
 		    output.printf("  %s total: -$%.2f%n", name, -total);
 		} else {
 		    output.printf("  %s total: $%.2f%n", name, total);
 		}
-		output.printf("   *Income: $%.2f%n%n", income);
+		output.printf("   *Income: $%.2f%n", income);
+		if (expend < 0) {
+		    output.printf("   *Expenditures: $%.2f%n%n", -expend);
+		} else {
+		    output.printf("   *Expenditures: $%.2f%n%n", expend);
+		}
 	    }
 	}
     }
@@ -345,7 +369,12 @@ class CommandInterpreter {
 	}
 	double inc = m.getTotal("Income");
 	output.printf("  Your total income for %s is: $%.2f%n", month, inc);
-	output.println();
+	double expend = tot - inc;
+	if (expend < 0) {
+	    output.printf("  Your total expenditures for %s amounted to: $%.2f%n%n", month, -expend);
+	} else {
+	    output.printf("  Your total expenditures for %s amounted to: $%.2f%n%n", month, expend);
+	}
 	for (String cat : m.getCats()) {
 	    if (cat.equals("Income")) {
 		continue;

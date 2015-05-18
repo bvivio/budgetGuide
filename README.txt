@@ -87,7 +87,7 @@ a description of the command's function is given.
 					months that have been loaded
 		budget		     :	reports on every month in the budget
 
-	 save <month Name> as <NAME> :	saves the report of a specific month
+	 save <month NAME> as <NAME> :	saves the report of a specific month
 	     	    	     		as the text file called <NAME>.txt
 	      <CATEGORY> as <NAME>   :	saves the report of a specific CATEGORY
 	       		     		as the text file called <NAME>.txt
@@ -99,6 +99,11 @@ a description of the command's function is given.
 		categories           : 	prints out all of the CATEGORIES
 				    	currently loaded inot the budget from
 					the loaded .bgi files
+
+	 remove <month NAME>	     :  removes the specified month from the
+	 	       		     	budget if it is currently loaded. Note
+					that a removed month can be reloaded
+					into the budget at any time
 
 	 clear		             :  restarts the state of the program by
 	 			     	clearing all the data currently loaded

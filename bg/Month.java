@@ -4,25 +4,24 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 
+/** A MONTH represents a complete .bgi file with a name, a number of days,
+ *  a list of CATEGORIES, and a list of ITEMS.
+ *  @author Brodie Vivio
+*/
 class Month {
 
     /** My name. */
     private final String _name;
     /** The number of days in me. */
     private final int _days;
-    /** My total amount. */
-    private double _monTot = Double.MIN_VALUE;
     /** My map from names of budget categories to lists of their data. */
     private HashMap<String, ArrayList<Item>> _data;
-    /** My map from names of budget categories to their total amount. */
-    private HashMap<String, Double> _totals;
 
     /** Creates a new Month with name NAME and 30 days. */
     Month(String name) {
 	_name = name;
 	_days = 30;
 	_data = new HashMap<String, ArrayList<Item>>();
-	_totals = new HashMap<String, Double>();
     }
 
     /** Creates a new Month with name NAME and DAYS days. */
@@ -30,7 +29,6 @@ class Month {
 	_name = name;
 	_days = days;
 	_data = new HashMap<String, ArrayList<Item>>();
-	_totals = new HashMap<String, Double>();
     }
 
     /** Returns my name. */
@@ -89,28 +87,20 @@ class Month {
      *  value to the _totals map if not already present. */
     double getTotal(String cat) {
 	assert _data.containsKey(cat);
-	if (_totals.containsKey(cat)) {
-	    return _totals.get(cat);
-	}
 	double total = 0;
 	for (Item item : _data.get(cat)) {
 	    total += item.getAmount();
 	}
-	_totals.put(cat, total);
 	return total;
     }
 
     /** Returns the total amount for the entire month and sets
      *  _monTot to this value if not already set. */
     double getTotal() {
-	if (_monTot != Double.MIN_VALUE) {
-	    return _monTot;
-	}
 	double total = 0;
 	for (String cat : _data.keySet()) {
 	    total += getTotal(cat);
 	}
-	_monTot = total;
 	return total;
     }
 
