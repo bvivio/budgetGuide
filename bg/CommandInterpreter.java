@@ -150,9 +150,11 @@ class CommandInterpreter {
     private void removeCommand(String[] args) {
 	if (args.length != 2) {
 	    _output.println("ERROR: invalid remove command");
+	    return;
 	}
 	if (!_monthNames.contains(args[1])) {
 	    _output.printf("ERROR: %s is not a loaded month%n", args[1]);
+	    return;
 	}
 	_budget.removeMonth(_budget.getMonth(args[1]));
 	_monthNames.remove(args[1]);
