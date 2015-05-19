@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.lang.RuntimeException;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /** The COMMANDINTERPRETER is the object for the CLI that the user
  *  interacts with by typing valid bgSQL commands. The input and output streams
@@ -548,410 +549,68 @@ class CommandInterpreter {
 	    _output.println("currently no loaded months");
 	    return;
 	}
-	collectCats();
-	if (args.length != 6 || !args[1].equals("months") || !args[2].equals("where")) {
+	if (!(args[1].equals("months") && args[2].equals("where"))) {
 	    _output.println("ERROR: invalid select command");
 	    return;
-	} else if (!(_cats.contains(args[3]) || args[3].equals("Total") ||
-		     args[3].equals("Expenditures"))) {
-	    _output.printf("ERROR: %s is not a currently loaded category%n", args[3]);
+	}
+	ArrayList<Condition> conds = parseConditions(Arrays.copyOfRange(args, 3,
+									args.length));
+	if (conds == null) {
 	    return;
 	}
-	double value;
-	try {
-	    value = Double.parseDouble(args[5]);
-	} catch (Exception e) {
-	    _output.printf("ERROR: %s is an invalid value%n", args[5]);
-	    return;
-	}
-	switch (args[4]) {
-	case "==":
-	    selectEquals(args[3], value);
+	ArrayList<Pair<String, ArrayList<Pair<String, Double>>>> dataList =
+	    Condition.filter(conds, _budget);
+	_output.printf("query results:%n%n");
+	for (Pair item : dataList) {
+	    _output.printf("  %s:%n", ((Month)item.getLeft()).getName());
+	    for (Pair result : (ArrayList<Pair<String, Double>>)item.getRight()) {
+		double catVal = (double)result.getRight();
+		if (catVal < 0) {
+		    _output.printf("   -%s: -$%.2f%n", result.getLeft(), -catVal);
+		} else {
+		    _output.printf("   -%s: $%.2f%n", result.getLeft(), catVal);
+		}
+	    }
 	    _output.println();
-	    return;
-	case "!=":
-	    selectNotEquals(args[3], value);
-	    _output.println();
-	    return;
-	case "<":
-	    selectLessThan(args[3], value);
-	    _output.println();
-	    return;
-	case "<=":
-	    selectLessThanOrEquals(args[3], value);
-	    _output.println();
-	    return;
-	case ">=":
-	    selectGreaterThanOrEquals(args[3], value);
-	    _output.println();
-	    return;
-	case ">":
-	    selectGreaterThan(args[3], value);
-	    _output.println();
-	    return;
-	default:
-	    _output.printf("ERROR: %s is not a valid comparator%n", args[4]);
-	    return;
 	}
     }
 
-    /** Performs the output of a select statement with comparator == using
-	category CAT and value VAL. */
-    private void selectEquals(String cat, double val) {
-	_output.printf("query results:%n%n");
-	ArrayList<String> monthList = new ArrayList<String>();
-	ArrayList<Double> valueList = new ArrayList<Double>();
-	if (cat.equals("Total")) {
-	    for (Month month : _budget.getMonths()) {
-		double total = month.getTotal();
-		if (total == val) {
-		    monthList.add(month.getName());
-		    valueList.add(total);
-		}
+    /** Parses input array ARGS as a list of condition statements and returns a list
+     *  of corresponding Condition objects. Returns NULL if any error occurs. */
+    ArrayList<Condition> parseConditions(String[] args) {
+	collectCats();
+	if ((args.length % 4) != 3) {
+	    _output.println("ERROR: invalid select command");
+	    return null;
+	}
+	ArrayList<Condition> conds = new ArrayList<Condition>();
+	for (int i = 0; i < args.length; i += 4) {
+	    if (!(_cats.contains(args[i]) || args[i].equals("Total") ||
+		  args[i].equals("Expenditures"))) {
+		_output.printf("ERROR: %s is not a loaded category%n", args[i]);
+		return null;
 	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a Total of: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a Total of: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
+	    if (!(args[i+1].equals("==") || args[i+1].equals("!=") || args[i+1].equals("<")
+		  || args[i+1].equals("<=") || args[i+1].equals(">=") ||
+		  args[i+1].equals(">"))) {
+		_output.printf("ERROR: %s is not a valid comparator%n", args[i+1]);
+		return null;
 	    }
-	} else if (cat.equals("Expenditures")) {
-	    for (Month month : _budget.getMonths()) {
-		double expend = -(month.getTotal() - month.getTotal("Income"));
-		if (expend == val) {
-		    monthList.add(month.getName());
-		    valueList.add(expend);
-		}
+	    double value;
+	    try {
+		value = Double.parseDouble(args[i+2]);
+	    } catch (Exception e) {
+		_output.printf("ERROR: %s is an invalid value%n", args[i+2]);
+		return null;
 	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s expenditures total: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s expenditures total: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else {
-	    for (Month month : _budget.getMonths()) {
-		double catValue = month.getTotal(cat);
-		if (catValue == val) {
-		    monthList.add(month.getName());
-		    valueList.add(catValue);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a %s total of: -$%.2f%n",
-				   monthList.get(i), cat, -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a %s total of: $%.2f%n",
-				   monthList.get(i), cat, valueList.get(i));
-		}
+	    conds.add(new Condition(args[i], new DoubleComparator(args[i+1]), value));
+	    if ((i + 3) == args.length) {
+		break;
+	    } else if (!args[i+3].equals("and")) {
+		_output.println("ERROR: invalid select command");
+		return null;
 	    }
 	}
-    }
-
-    /** Performs the output of a select statement with comparator != using
-	category CAT and value VAL. */
-    private void selectNotEquals(String cat, double val) {
-	_output.printf("query results:%n%n");
-	ArrayList<String> monthList = new ArrayList<String>();
-	ArrayList<Double> valueList = new ArrayList<Double>();
-	if (cat.equals("Total")) {
-	    for (Month month : _budget.getMonths()) {
-		double total = month.getTotal();
-		if (total != val) {
-		    monthList.add(month.getName());
-		    valueList.add(total);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a Total of: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a Total of: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else if (cat.equals("Expenditures")) {
-	    for (Month month : _budget.getMonths()) {
-		double expend = -(month.getTotal() - month.getTotal("Income"));
-		if (expend != val) {
-		    monthList.add(month.getName());
-		    valueList.add(expend);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s expenditures total: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s expenditures total: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else {
-	    for (Month month : _budget.getMonths()) {
-		double catValue = month.getTotal(cat);
-		if (catValue != val) {
-		    monthList.add(month.getName());
-		    valueList.add(catValue);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a %s total of: -$%.2f%n",
-				   monthList.get(i), cat, -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a %s total of: $%.2f%n",
-				   monthList.get(i), cat, valueList.get(i));
-		}
-	    }
-	}
-    }
-
-    /** Performs the output of a select statement with comparator < using
-	category CAT and value VAL. */
-    private void selectLessThan(String cat, double val) {
-	_output.printf("query results:%n%n");
-	ArrayList<String> monthList = new ArrayList<String>();
-	ArrayList<Double> valueList = new ArrayList<Double>();
-	if (cat.equals("Total")) {
-	    for (Month month : _budget.getMonths()) {
-		double total = month.getTotal();
-		if (total < val) {
-		    monthList.add(month.getName());
-		    valueList.add(total);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a Total of: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a Total of: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else if (cat.equals("Expenditures")) {
-	    for (Month month : _budget.getMonths()) {
-		double expend = -(month.getTotal() - month.getTotal("Income"));
-		if (expend < val) {
-		    monthList.add(month.getName());
-		    valueList.add(expend);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s expenditures total: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s expenditures total: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else {
-	    for (Month month : _budget.getMonths()) {
-		double catValue = month.getTotal(cat);
-		if (catValue < val) {
-		    monthList.add(month.getName());
-		    valueList.add(catValue);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a %s total of: -$%.2f%n",
-				   monthList.get(i), cat, -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a %s total of: $%.2f%n",
-				   monthList.get(i), cat, valueList.get(i));
-		}
-	    }
-	}
-    }
-
-    /** Performs the output of a select statement with comparator <= using
-	category CAT and value VAL. */
-    private void selectLessThanOrEquals(String cat, double val) {
-	_output.printf("query results:%n%n");
-	ArrayList<String> monthList = new ArrayList<String>();
-	ArrayList<Double> valueList = new ArrayList<Double>();
-	if (cat.equals("Total")) {
-	    for (Month month : _budget.getMonths()) {
-		double total = month.getTotal();
-		if (total <= val) {
-		    monthList.add(month.getName());
-		    valueList.add(total);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a Total of: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a Total of: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else if (cat.equals("Expenditures")) {
-	    for (Month month : _budget.getMonths()) {
-		double expend = -(month.getTotal() - month.getTotal("Income"));
-		if (expend <= val) {
-		    monthList.add(month.getName());
-		    valueList.add(expend);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s expenditures total: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s expenditures total: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else {
-	    for (Month month : _budget.getMonths()) {
-		double catValue = month.getTotal(cat);
-		if (catValue <= val) {
-		    monthList.add(month.getName());
-		    valueList.add(catValue);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a %s total of: -$%.2f%n",
-				   monthList.get(i), cat, -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a %s total of: $%.2f%n",
-				   monthList.get(i), cat, valueList.get(i));
-		}
-	    }
-	}
-    }
-
-    /** Performs the output of a select statement with comparator >= using
-	category CAT and value VAL. */
-    private void selectGreaterThanOrEquals(String cat, double val) {
-	_output.printf("query results:%n%n");
-        ArrayList<String> monthList = new ArrayList<String>();
-	ArrayList<Double> valueList = new ArrayList<Double>();
-	if (cat.equals("Total")) {
-	    for (Month month : _budget.getMonths()) {
-		double total = month.getTotal();
-		if (total >= val) {
-		    monthList.add(month.getName());
-		    valueList.add(total);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a Total of: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a Total of: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else if (cat.equals("Expenditures")) {
-	    for (Month month : _budget.getMonths()) {
-		double expend = -(month.getTotal() - month.getTotal("Income"));
-		if (expend >= val) {
-		    monthList.add(month.getName());
-		    valueList.add(expend);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s expenditures total: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s expenditures total: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else {
-	    for (Month month : _budget.getMonths()) {
-		double catValue = month.getTotal(cat);
-		if (catValue >= val) {
-		    monthList.add(month.getName());
-		    valueList.add(catValue);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a %s total of: -$%.2f%n",
-				   monthList.get(i), cat, -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a %s total of: $%.2f%n",
-				   monthList.get(i), cat, valueList.get(i));
-		}
-	    }
-	}
-    }
-
-    /** Performs the output of a select statement with comparator > using
-	category CAT and value VAL. */
-    private void selectGreaterThan(String cat, double val) {
-	_output.printf("query results:%n%n");
-        ArrayList<String> monthList = new ArrayList<String>();
-	ArrayList<Double> valueList = new ArrayList<Double>();
-	if (cat.equals("Total")) {
-	    for (Month month : _budget.getMonths()) {
-		double total = month.getTotal();
-		if (total > val) {
-		    monthList.add(month.getName());
-		    valueList.add(total);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a Total of: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a Total of: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else if (cat.equals("Expenditures")) {
-	    for (Month month : _budget.getMonths()) {
-		double expend = -(month.getTotal() - month.getTotal("Income"));
-		if (expend > val) {
-		    monthList.add(month.getName());
-		    valueList.add(expend);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s expenditures total: -$%.2f%n",
-				   monthList.get(i), -valueList.get(i));
-		} else {
-		    _output.printf("  %s expenditures total: $%.2f%n",
-				   monthList.get(i), valueList.get(i));
-		}
-	    }
-	} else {
-	    for (Month month : _budget.getMonths()) {
-		double catValue = month.getTotal(cat);
-		if (catValue > val) {
-		    monthList.add(month.getName());
-		    valueList.add(catValue);
-		}
-	    }
-	    for (int i = 0; i < monthList.size(); i++) {
-		if (valueList.get(i) < 0) {
-		    _output.printf("  %s has a %s total of: -$%.2f%n",
-				   monthList.get(i), cat, -valueList.get(i));
-		} else {
-		    _output.printf("  %s has a %s total of: $%.2f%n",
-				   monthList.get(i), cat, valueList.get(i));
-		}
-	    }
-	}
+	return conds;
     }
 }

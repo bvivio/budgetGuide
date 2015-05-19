@@ -1,15 +1,18 @@
 Improvements for budgetGuide 4.0:
 
   1. Allow entire budget state to be saved as a .bg file that can be reloaded
-     using load budget statement
+     using 'load budget' statement
+  2. Fix README so it is narrow enough for GitHub
+  3. Implement a save (select statement) as .txt file
 
 Improvements for budgetGuide 5.0:
 
-  1. Implement two condition queries with and keyword.
-  2. Implement add and remove commands to add/remove a single item from a month
-     in the current budget.
-  3. Implement an add month command to add a new month into the budget.
+  1. Implement two condition queries with 'and' keyword.
+  2. Implement 'add' and 'remove' commands to add/remove a single item
+     from a month in the current budget.
+  3. Implement an 'add month' command to add a new month into the budget.
 
 Improvements for budgetGuide 6.0:
 
-  1. Implement multiple budgets to be in the system at one time.
+  1. Implement system for multiple budgets to be loaded at one time, and users
+     can move between budgets using 'switch to' command.
