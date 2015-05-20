@@ -112,7 +112,7 @@ To be concise, another term will be defined:
 SELECT STATEMENT: a statement consisting of the words "select months where" and
        		  a list of one or more CONDITIONs separated by "and". For example:
 
-		    	 select months where Incom > 300 and Total < 0
+		    	 select months where Income >= 300 and Total < 0
 
 _______________________________________________________________________________
   COMMAND			 |  DESCRIPTION
@@ -169,7 +169,7 @@ ______________________________________________________________________________
 This is an example of a session of budgetGuide, demonstrating the user
 interface and bgSQL queries/commands:
 
-Welcome to budgetGuide version 3.5!
+Welcome to budgetGuide version 3.6!
 >> load data/april.bgi data/may.bgi data/june.bgi
 loaded April
 loaded May
