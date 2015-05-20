@@ -1,4 +1,13 @@
-budgetGuide Application Specifications and User Guide:
+budgetGuide SPECIFICATIONS AND USER GUIDE:
+@author Brodie Vivio
+
+CONTENTS:
+
+	-INTRO
+	-USEFUL DEFINITIONS
+	-FORMAT OF .bgi FILES
+	-USER INTERFACE AND SIMPLE QUERY LANGUAGE (bgSQL)
+	-EXAMPLES OF bgSQL
 
 ______________________________________________________________________________
 ***INTRO***
@@ -24,15 +33,10 @@ Hit enter and the program should begin with a print statement welcoming you to a
 specific version of the application.
 
 ______________________________________________________________________________
-***FORMAT OF .bgi FILES***
+***USEFUL DEFINITIONS***
 ______________________________________________________________________________
 
-The input files for the budgetGuide application are expected to be complete
-budget reports of specific time intervals (the expected interval is one month).
-Each .bgi file has three main parts: a name and number of days that the .bgi
-file has budgeting information about, a list of category names (called
-CATEGORIES) which describe the sources of funds and spending, and a list of
-purchases/deposits (called ITEMS). Some useful budgetGuide definitions:
+Some useful budgetGuide definitions to help with clarity of this document:
 
 NAME: a string containing only letters, numbers, and symbols. No spaces are
       allowed in a valid NAME (underscores can be used to create a NAME with
@@ -44,6 +48,25 @@ COMPARATOR: the strings "==", "!=", "<", "<=", ">=", and ">" which take on
 VALUE: a number representing a monetary value. These can be positive or  negative,
        and can be integers or numbers with decimals. In budgetGuide all of these
        values  are rounded to the nearest hundredth to represent dollars and cents.
+
+CONDITION: a statement consisting of a CATEGORY NAME, a COMPARATOR, and a VALUE all
+	   separated by spaces. Also, the two keywords "Total" and "Expenditures"
+	   are valid CATEGORY NAMEs to be used in a CONDITION, representing the
+	   monthly total (Income and Expenses) and the (positive) monthly
+	   expenditures respectively. The following is an example of a valid
+	   CONDITION:
+
+	   Expenditures < -212.56
+______________________________________________________________________________
+***FORMAT OF .bgi FILES***
+______________________________________________________________________________
+
+The input files for the budgetGuide application are expected to be complete
+budget reports of specific time intervals (the expected interval is one month).
+Each .bgi file has three main parts: a name and number of days that the .bgi
+file has budgeting information about, a list of category names (called
+CATEGORIES) which describe the sources of funds and spending, and a list of
+purchases/deposits (called ITEMS).
 
 The first line of a .bgi file must conatin a NAME (the name of the given time
 period; often the name of the month/s is appropriate) and an integer
@@ -71,85 +94,120 @@ For example, a valid ITEM could read as follows:
 
 Necessary_Expenses 4 Weekly_load_of_laundry -3.75
 
+This would indicate that on the fourth of the month, you spent 3.75 on a load
+of laundry, and that you consider this expense a necessary expense in your monthly
+budget.
+
 ______________________________________________________________________________
 ***USER INTERFACE AND SIMPLE QUERY LANGUAGE (bgSQL)***
 ______________________________________________________________________________
 
 Upon starting the program, the user must input a series of commands to load
-the desired data (in .bgi files), receive summaries of the compiled data, and
-export the reports as text files. The details of this simple language of
-commands (bgSQL) is as follows. First the syntax of the command is listed, and then
-a description of the command's function is given.
+the desired data (in .bgi files), receive summaries of the compiled data,
+export the reports as text files, or perform queries on the data. The details of
+this simple query language of commands (bgSQL) is as follows. First the syntax of
+the command is listed, and then a description of the command's function is given.
+To be concise, another term will be defined:
 
-___________________________________________________________________________________________________
-  COMMAND					     |  DESCRIPTION
-___________________________________________________________________________________________________
+SELECT STATEMENT: a statement consisting of the words "select months where" and
+       		  a list of one or more CONDITIONs separated by "and". For example:
 
-load   <filename>+				     :	loads the .bgi file(s) into the budget
+		    	 select months where Incom > 300 and Total < 0
 
-report <month NAME>	     	      	       	     :	reports on a specific month (.bgi file)
-	 	       				     	that has previously been loaded
-       <CATEGORY>	     		     	     :	reports on a specific CATEGORY for all
-						     	months that have been loaded
-       budget		     		       	     :	reports on every month in the budget
+_______________________________________________________________________________
+  COMMAND			 |  DESCRIPTION
+_______________________________________________________________________________
 
-save   <month NAME> as <NAME>		   	     :	saves the report of a specific month
-	     	    	     			     	as the text file called <NAME>.txt
-       <CATEGORY> as <NAME>  		       	     :	saves the report of a specific CATEGORY
-	       		     			     	as the text file called <NAME>.txt
-       budget as <NAME>      		       	     :	saves the report of the entire budget
-	      	     		    		     	as the text file called <NAME>.txt
+load   <filename>+		 :  loads the .bgi file(s) into the budget
 
-print  months		     		       	     :  prints out the names of the .bgi files
-	 			    		       	that have been loaded into the budget
-       categories           		     	     : 	prints out all of the CATEGORIES
-				    		     	currently loaded inot the budget from
-							the loaded .bgi files
+report <month NAME>	     	 :  reports on a specific month (.bgi file)
+	 	                    that has previously been loaded
+       <CATEGORY>	     	 :  reports on a specific CATEGORY for all
+	                            months that have been loaded
+       budget		     	 :  reports on every month in the budget
 
-select months where <CATEGORY> <COMPARATOR> <VALUE>  :  prints the months in which the CATEGORY value
-       	      	    	       		    	     	satisfies the condition with the COMPARATOR
-							and the VALUE
-       	      	    Total <COMPARATOR> <VALUE>       :	prints the months in which the monthly total
-		    	  	       		     	value satisfies the condition with the
-							COMPARATOR and the VALUE
-		    Expenditures <COMPARATOR> <VALUE>:	prints the months in which the total monthly
-		    		 	      		expenditures satisfiy the condition with the
-							COMPARATOR and the VALUE
+save   <month NAME> as <NAME>	 :  saves the report of a specific month
+	     	    	     	    as the text file called <NAME>.txt
+       <CATEGORY> as <NAME>  	 :  saves the report of a specific CATEGORY
+	       		            as the text file called <NAME>.txt
+       budget as <NAME>      	 :  saves the report of the entire budget
+	      	     		    as the text file called <NAME>.txt
+       <SELECT STATEMENT> as     :  saves the result of the corresponding
+       	       <NAME> 	  	    select query as the text file called
+	       			    <NAME>.txt
 
-remove <month NAME>	     	 	             :  removes the specified month from the
-	 	       		     		     	budget if it is currently loaded. Note
-							that a removed month can be reloaded
-							into the budget at any time
+print  months		     	 :  prints out the names of the .bgi files
+	 			    that have been loaded into the budget
+       categories                :  prints out all of the CATEGORIES
+				    currently loaded inot the budget from
+				    the loaded .bgi files
 
-clear		             			     :  restarts the state of the program by
-	 			     		     	clearing all the data currently loaded
-						     	into the budget
+<SELECT STATEMENT>               :  prints the months in which the CONDITION(s)
+       		    		    is/are met, along with the data about each
+				    of the months relevant to the CONDITIONs'
+				    paramters
 
-exit			     			     :	exits the budgetGuide program; doesn't
-	 			    		     	save the state of the budget
+remove <month NAME>	     	 :  removes the specified month from the
+	 	       		    budget if it is currently loaded. Note
+				    that a removed month can be reloaded
+				    into the budget at any time
 
-quit			    			     :	same as exit command
+clear		                 :  restarts the state of the program by
+	 			    clearing all the data currently loaded
+				    into the budget
 
-help			     			     :	prints out this list of commands
-________________________________________________________________________________________________________
-***EXAMPLES OF BGSQL***
-________________________________________________________________________________________________________
+exit	                         :  exits the budgetGuide program; doesn't
+	 			    save the state of the budget
 
->> load data/march_budget.bgi data/april_budget.bgi data/may_budget.bgi
-loaded March
+quit			         :  same as exit command
+
+help			         :  prints out this list of commands
+______________________________________________________________________________
+***EXAMPLES OF bgSQL***
+______________________________________________________________________________
+
+This is an example of a session of budgetGuide, demonstrating the user
+interface and bgSQL queries/commands:
+
+Welcome to budgetGuide version 3.5!
+>> load data/april.bgi data/may.bgi data/june.bgi
 loaded April
 loaded May
+loaded June
 >> print months
-March
 April
 May
->> select months where Income > 300
+June
+>> print categories
+Luxuries
+Income
+Necessary_Expenses
+Bills
+>> report April
+
+  Your total for April is: -$298.86
+  Your total income for April is: $230.00
+  Your total expenditures for April amounted to: $528.86
+
+   -You spent $199.55 on Luxuries, which is 87% of your income.
+   -You spent $187.87 on Necessary_Expenses, which is 82% of your income.
+   -You spent $141.44 on Bills, which is 61% of your income.
+
+   -Each day in April you spent $17.63 and earned $7.67,
+    which is a daily net total of -$9.96.
+
+>> select months where Income > 300 and Necessary_Expenses < -50
 query results:
 
-  March has a Income of: $345.67
-  May has a Income of: $557.00
+  May:
+   -Income: $568.85
+   -Necessary_Expenses: -$93.97
 
 >> save budget as log/Spring_Budget
 saved budget report as log/Spring_Budget.txt
 >> exit
-Closing budgetGuide...
+closing budgetGuide...
+
+__________________________________________________________________________
+***END OF README***
+__________________________________________________________________________

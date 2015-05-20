@@ -12,6 +12,9 @@ save <month NAME> as <NAME> :	saves the report of a specific month
 	       		        as the text file called <NAME>.txt
      budget as <NAME>       :	saves the report of the entire budget
 	      	     	        as the text file called <NAME>.txt
+     <SELECT STATEMENT>     :   saves the results of the corresponding
+     	 as <NAME>              select statement as the text file
+	    			called <NAME>.txt
 
 print	months		    :   prints out the names of the .bgi files
 	 			that have been loaded into the budget
@@ -19,11 +22,9 @@ print	months		    :   prints out the names of the .bgi files
 			        currently loaded inot the budget from
 				the loaded .bgi files
 
-select months where         :   prints the months in which the CATEGORY value
-       <CATEGORY>/Total/	or the monthly total or the expenditure total
-	    Expenditures        satisfies the condition with the COMPARATOR and
-       <COMPARATOR>		the VALUE
-       <VALUE>
+<SELECT STATEMENT>          :  prints the months in which the CONDITION is
+  			       met, along with the info about the month
+       		    	       pertaining to the CONDITIONs' paramters
 
 
 remove <month NAME>	    :   removes the specified month from the budget

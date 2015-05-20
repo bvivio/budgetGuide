@@ -99,7 +99,7 @@ class CommandInterpreter {
 	    saveCommand(coms);
 	    return;
 	case "select":
-	    selectCommand(coms);
+	    selectCommand(coms, _output);
 	    return;
 	case "remove":
 	    removeCommand(coms);
@@ -505,6 +505,14 @@ class CommandInterpreter {
 
     /** Reads and executes a save command. */
     private void saveCommand(String[] args) {
+	if (_monthNames.size() == 0) {
+	    _output.println("currently no loaded months");
+	    return;
+	}
+	if (args[1].equals("select")) {
+	    saveSelectCommand(args);
+	    return;
+	}
 	if (args.length != 4 || !args[2].equals("as")) {
 	    _output.println("ERROR: invalid save command");
 	    return;
@@ -542,9 +550,30 @@ class CommandInterpreter {
 	}
     }
 
+    /** Performs a save select command in which the results of a select query
+	are saved as a text file. */
+    private void saveSelectCommand(String[] args) {
+        if (!args[args.length - 2].equals("as")) {
+	    _output.printf("ERROR: invalid save select command%n");
+	    return;
+	}
+	PrintStream out = null;
+	try {
+	    out = new PrintStream(args[args.length - 1] + ".txt");
+	    selectCommand(Arrays.copyOfRange(args, 1, args.length - 2), out);
+	    _output.printf("saved query as %s.txt%n", args[args.length - 1]);
+	} catch (FileNotFoundException e) {
+	    _output.printf("ERROR: trouble writing to %s.txt%n", args[args.length - 1]);
+	} finally {
+	    if (out != null) {
+		out.close();
+	    }
+	}
+    }
+
     /** Performs a select operation by only outputting the months
 	that meet the given conditions.*/
-    private void selectCommand(String[] args) {
+    private void selectCommand(String[] args, PrintStream output) {
 	if (_monthNames.size() == 0) {
 	    _output.println("currently no loaded months");
 	    return;
@@ -560,18 +589,18 @@ class CommandInterpreter {
 	}
 	ArrayList<Pair<String, ArrayList<Pair<String, Double>>>> dataList =
 	    Condition.filter(conds, _budget);
-	_output.printf("query results:%n%n");
+	output.printf("query results:%n%n");
 	for (Pair item : dataList) {
-	    _output.printf("  %s:%n", ((Month)item.getLeft()).getName());
+	    output.printf("  %s:%n", ((Month)item.getLeft()).getName());
 	    for (Pair result : (ArrayList<Pair<String, Double>>)item.getRight()) {
 		double catVal = (double)result.getRight();
 		if (catVal < 0) {
-		    _output.printf("   -%s: -$%.2f%n", result.getLeft(), -catVal);
+		    output.printf("   -%s: -$%.2f%n", result.getLeft(), -catVal);
 		} else {
-		    _output.printf("   -%s: $%.2f%n", result.getLeft(), catVal);
+		    output.printf("   -%s: $%.2f%n", result.getLeft(), catVal);
 		}
 	    }
-	    _output.println();
+	    output.println();
 	}
     }
 
