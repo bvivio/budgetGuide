@@ -1,9 +1,0 @@
-cd bg
-del *.class
-del *.java~
-cd ..
-cd data
-del *.bgi~
-cd ..
-del *.cmd~
-del *.txt~

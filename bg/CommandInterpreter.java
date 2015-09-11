@@ -118,7 +118,7 @@ class CommandInterpreter {
 
     /** Prints an ending message and quits budgetGuide. */
     private void quitCommand() {
-	_output.print("closing budgetGuide...");
+	_output.println("closing budgetGuide...");
 	_end = true;
     }
 
@@ -162,29 +162,51 @@ class CommandInterpreter {
         _output.printf("removed %s from budget%n", args[1]);
     }
 
+    /** Parses a load command to determine if it is a load all command
+     *  or not. */
+    private void loadCommand(String[] args) {
+    	if (args.length < 2) {
+    		_output.println("ERROR: invalid load command");
+    		return;
+    	}
+    	if (args[1].equals("all")) {
+    		loadFolderCommand(args);
+    		return;
+    	}
+    	loadFilesCommand(args);
+    }
+
+
+    /** Reads and executes a load all command, which finds all the .bgi
+     *  files in the given folder and loads them into the budget. */
+    private void loadFolderCommand(String[] args) {
+    	if (args.length != 4 || !args[2].equals("from")) {
+    		_output.println("ERROR: invalid load all command");
+    		return;
+    	}
+    	_output.printf("loaded all .bgi files from %s%n", args[3]);
+    }
+
+
     /** Reads and executes a load command, which reads in the .bgi files
      *  FILENAMES[1...] and stores it as a Month in my Budget. */
-    private void loadCommand(String[] fileNames) {
-	if (fileNames.length < 2) {
-	    _output.println("ERROR: invalid load command");
-	}
-	for (int i = 1; i < fileNames.length; i++) { 
-	    try {
-		Scanner in = new Scanner(new FileReader(fileNames[i]));
-		Month month = processFile(in);
-		if (month == null) {
-		    continue;
+    private void loadFilesCommand(String[] fileNames) {
+		for (int i = 1; i < fileNames.length; i++) { 
+	    	try {
+				Scanner in = new Scanner(new FileReader(fileNames[i]));
+				Month month = processFile(in);
+				if (month == null) {
+		    		continue;
+				}
+				_budget.addMonth(month);
+				_output.printf("loaded %s%n", month.getName());
+	    	} catch (FileNotFoundException e) {
+				_output.printf("ERROR: cannot find file %s%n", fileNames[i]);
+	    	} catch (RuntimeException e) {
+				_output.printf("ERROR: file %s could not be interpreted;%n       %s",
+			       		   		fileNames[i], e.getMessage());
+	    	}
 		}
-		_budget.addMonth(month);
-		_output.printf("loaded %s%n", month.getName());
-	    } catch (FileNotFoundException e) {
-		_output.printf("ERROR: cannot find file %s%n",
-			       fileNames[i]);
-	    } catch (RuntimeException e) {
-		_output.printf("ERROR: file %s could not be interpreted;%n       %s",
-			       fileNames[i], e.getMessage());
-	    }
-	}
     }
 
     /** Reads the file IN and returns all the data as a Month object
