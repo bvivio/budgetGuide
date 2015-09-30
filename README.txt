@@ -15,7 +15,7 @@ ______________________________________________________________________________
 
 budgetGuide is an application that compiles budgeting information from
 input .bgi files (the specifications for .bgi files are listed below) and
-allows users to retreive information about many aspects of the budget via a
+allows users to retrieve information about many aspects of the budget via a
 command line interface using a simple query language called bgSQL (the
 specifications of which are listed below as well). Also, users can export
 the summarized data as .txt files in order to save the information obtained
