@@ -2,8 +2,10 @@ package bg;
 
 import java.util.Scanner;
 import java.io.PrintStream;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.lang.RuntimeException;
 import java.util.HashSet;
 import java.util.ArrayList;
@@ -18,6 +20,9 @@ import java.util.Arrays;
 */
 class CommandInterpreter {
 
+	/** The FileNameFilter to accept only .bgi files */
+	private static BGIFileFilter _bgiFileFilter = new BGIFileFilter();
+
     /** My input. */
     private Scanner _input;
     /** My output. */
@@ -30,6 +35,7 @@ class CommandInterpreter {
     private HashSet<String> _cats;
     /** The set of the names of all my months. */
     private HashSet<String> _monthNames;
+
 
     /** Creates a new CommandInterpreter object with an empty Budget.
      *  All input is from the Standard Input and all output is to the
@@ -170,7 +176,7 @@ class CommandInterpreter {
     		return;
     	}
     	if (args[1].equals("all")) {
-    		loadFolderCommand(args);
+    		loadAllCommand(args);
     		return;
     	}
     	loadFilesCommand(args);
@@ -179,17 +185,30 @@ class CommandInterpreter {
 
     /** Reads and executes a load all command, which finds all the .bgi
      *  files in the given folder and loads them into the budget. */
-    private void loadFolderCommand(String[] args) {
+    private void loadAllCommand(String[] args) {
     	if (args.length != 4 || !args[2].equals("from")) {
     		_output.println("ERROR: invalid load all command");
     		return;
     	}
-    	_output.printf("loaded all .bgi files from %s%n", args[3]);
+    	File dir = new File(args[3]);
+    	if (!dir.isDirectory()) {
+    		_output.printf("ERROR: %s is not a directory\n", args[3]);
+    		return;
+   		}
+    	String[] bgiFileNames = dir.list(_bgiFileFilter);
+    	int numPotentialFiles = bgiFileNames.length;
+    	String[] loadFilesArgs = new String[numPotentialFiles + 1];
+    	loadFilesArgs[0] = "load";
+    	for (int i = 0; i < numPotentialFiles; i++) {
+    		loadFilesArgs[i + 1] = args[3].concat("/").concat(bgiFileNames[i]);
+    	}
+    	loadFilesCommand(loadFilesArgs);
     }
 
 
     /** Reads and executes a load command, which reads in the .bgi files
-     *  FILENAMES[1...] and stores it as a Month in my Budget. */
+     *  FILENAMES[1...] and stores it as a Month in my Budget. Returns true
+     *  iff there was at least one file that failed due to an error. */
     private void loadFilesCommand(String[] fileNames) {
 		for (int i = 1; i < fileNames.length; i++) { 
 	    	try {
@@ -215,10 +234,12 @@ class CommandInterpreter {
      *  IN does not include an 'Income' category. */
     private Month processFile(Scanner in) {
 	int lineNum = 1;
+	int monthNum;
 	String monthName;
 	Month month;
 	boolean containsIncome = false;
 	try {
+		monthNum = in.nextInt();
 	    monthName = in.next();
 	    if (_monthNames.contains(monthName)) {
 		_output.printf("ERROR: budget already contains month %s%n",
@@ -664,4 +685,16 @@ class CommandInterpreter {
 	}
 	return conds;
     }
+
+    private static class BGIFileFilter implements FilenameFilter {
+
+		public boolean accept(File dir, String name) {
+			if (name.endsWith(".bgi")) {
+				return true;
+			}
+			return false;
+		}
+
+    }
+
 }

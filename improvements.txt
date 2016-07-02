@@ -1,9 +1,9 @@
 Improvements for budgetGuide 4.0:
 
-  1. Allow entire budget state to be saved as a .bg file that can be reloaded
-     using 'load budget' statement
-  2. When parsing a .bgi file, skip over blank lines and do not error.
-  3. Error messages for commands should give specific reason for erroring.
+  1. When parsing a .bgi file, skip over blank lines and do not error.
+  2. Error messages for commands should give specific reason for erroring.
+  3. Create a data structure to hold the previous entered commands, so upon
+     pressing up and down arrow keys users can see previous commands printed.
 
 Improvements for budgetGuide 5.0:
 
@@ -14,5 +14,7 @@ Improvements for budgetGuide 5.0:
 
 Improvements for budgetGuide 6.0:
 
-  1. Implement system for multiple budgets to be loaded at one time, and users
+  1. 1. Allow entire budget state to be saved as a .bg file that can be reloaded
+     using 'load budget' statement
+  2. Implement system for multiple budgets to be loaded at one time, and users
      can move between budgets using 'switch to' command.
