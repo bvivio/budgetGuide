@@ -41,130 +41,130 @@ class CommandInterpreter {
      *  All input is from the Standard Input and all output is to the
      *  Standard Output. */
     CommandInterpreter() {
-	this(new Scanner(System.in), System.out);
+		this(new Scanner(System.in), System.out);
     }
 
     /** Creates a new CommandInterpreter object with an empty Budget.
      *  Input comes from Scanner INP and output is to the PrintStream OUT. */
     CommandInterpreter(Scanner inp, PrintStream out) {
-	_input = inp;
-	_output = out;
-	_end = false;
-	_budget = new Budget();
-	_cats = new HashSet<String>();
-	_monthNames = new HashSet<String>();
+		_input = inp;
+		_output = out;
+		_end = false;
+		_budget = new Budget();
+		_cats = new HashSet<String>();
+		_monthNames = new HashSet<String>();
     }
 
     /** Closes the output PrintStream. */
     void close() {
-	_output.close();
+		_output.close();
     }
 
     /** Returns true iff the session of budgetGuide should end. */
     boolean end() {
-	return _end;
+		return _end;
     }
 
     /** Returns my Budget object. */
     Budget getBudget() {
-	return _budget;
+		return _budget;
     }
 
     /** Adds any new categories that have been added to any of the months
      *  in _budget to _cats. */
     private void collectCats() {
-	for (Month month : _budget.getMonths()) {
-	    for (String cat : month.getCats()) {
-		_cats.add(cat);
-	    }
-	}
+		for (Month month : _budget.getMonths()) {
+	    	for (String cat : month.getCats()) {
+			_cats.add(cat);
+	    	}
+		}
     }
 
     /** Reads and executes one statement. */
     void statement() {
-	_output.print(">> ");
-	String line = _input.nextLine();
-	String[] coms = line.split(" ");
-	switch (coms[0]) {
-	case "quit":
-	    quitCommand();
-	    return;
-	case "exit":
-	    quitCommand();
-	    return;
-	case "load":
-	    loadCommand(coms);
-	    return;
-	case "print":
-	    printCommand(coms);
-	    return;
-	case "report":
-	    reportCommand(coms);
-	    return;
-	case "save":
-	    saveCommand(coms);
-	    return;
-	case "select":
-	    selectCommand(coms, _output);
-	    return;
-	case "remove":
-	    removeCommand(coms);
-	    return;
-	case "help":
-	    helpCommand();
-	    return;
-	case "clear":
-	    clearCommand();
-	    return;
-	default:
-	    _output.printf("ERROR: unknown command%n");
-	    statement();
-	}
+		_output.print(">> ");
+		String line = _input.nextLine();
+		String[] coms = line.split(" ");
+		switch (coms[0]) {
+			case "quit":
+	    		quitCommand();
+	    		return;
+			case "exit":
+	    		quitCommand();
+	    		return;
+			case "load":
+	    		loadCommand(coms);
+	    		return;
+			case "print":
+	    		printCommand(coms);
+	    		return;
+			case "report":
+	    		reportCommand(coms);
+	    		return;
+			case "save":
+	    		saveCommand(coms);
+	    		return;
+			case "select":
+	    		selectCommand(coms, _output);
+	    		return;
+			case "remove":
+	    		removeCommand(coms);
+	    		return;
+			case "help":
+	    		helpCommand();
+	    		return;
+			case "clear":
+	    		clearCommand();
+	    		return;
+			default:
+	    		_output.printf("ERROR: unknown command%n");
+	    		statement();
+		}
     }
 
     /** Prints an ending message and quits budgetGuide. */
     private void quitCommand() {
-	_output.println("closing budgetGuide...");
-	_end = true;
+		_output.println("closing budgetGuide...");
+		_end = true;
     }
 
     /** Prints out the list of all commands. */
     private void helpCommand() {
-	try {
-	    Scanner helpFile = new Scanner(new FileReader("help.txt"));
-	    String line = null;
-	    _output.println();
-	    while (helpFile.hasNextLine()) {
-		line = helpFile.nextLine();
-		_output.println(line);
-	    }
-	    helpFile.close();
-	    _output.println();
-	} catch (FileNotFoundException e) {
-	    _output.println("ERROR: help.txt not found");
-	}
+		try {
+	    	Scanner helpFile = new Scanner(new FileReader("help.txt"));
+	    	String line = null;
+	    	_output.println();
+	    	while (helpFile.hasNextLine()) {
+				line = helpFile.nextLine();
+				_output.println(line);
+	    	}
+	    	helpFile.close();
+	    	_output.println();
+		} catch (FileNotFoundException e) {
+	    	_output.println("ERROR: help.txt not found");
+		}
     }
 
     /** Restarts the program by clearing all loaded data. */
     private void clearCommand() {
-	_budget = new Budget();
-	_cats = new HashSet<String>();
-	_monthNames = new HashSet<String>();
-	_output.println("cleared all data");
+		_budget = new Budget();
+		_cats = new HashSet<String>();
+		_monthNames = new HashSet<String>();
+		_output.println("cleared all data");
     }
 
     /** Performs a remove command by removing a Month from the budget. */
     private void removeCommand(String[] args) {
-	if (args.length != 2) {
-	    _output.println("ERROR: invalid remove command");
-	    return;
-	}
-	if (!_monthNames.contains(args[1])) {
-	    _output.printf("ERROR: %s is not a loaded month%n", args[1]);
-	    return;
-	}
-	_budget.removeMonth(_budget.getMonth(args[1]));
-	_monthNames.remove(args[1]);
+		if (args.length != 2) {
+	    	_output.println("ERROR: invalid remove command");
+	    	return;
+		}
+		if (!_monthNames.contains(args[1])) {
+	    	_output.printf("ERROR: %s is not a loaded month%n", args[1]);
+	    	return;
+		}
+		_budget.removeMonth(_budget.getMonth(args[1]));
+		_monthNames.remove(args[1]);
         _output.printf("removed %s from budget%n", args[1]);
     }
 
@@ -233,184 +233,197 @@ class CommandInterpreter {
      *  month name, or null otherwise. Also returns null if the file
      *  IN does not include an 'Income' category. */
     private Month processFile(Scanner in) {
-	int lineNum = 1;
-	int monthNum;
-	String monthName;
-	Month month;
-	boolean containsIncome = false;
-	try {
-		monthNum = in.nextInt();
-	    monthName = in.next();
-	    if (_monthNames.contains(monthName)) {
-		_output.printf("ERROR: budget already contains month %s%n",
-			       monthName);
-		return null;
-	    }
-	    month = new Month(monthName, in.nextInt());
-	    in.nextLine();
-	    lineNum++;
-	    String[] cats = in.nextLine().split(", ");
-	    for (String cat : cats) {
-		if (cat.equals("Income")) {
-		    containsIncome = true;
+		int lineNum = 1;
+		int monthNum;
+		String monthName;
+		Month month;
+		boolean containsIncome = false;
+		try {
+			monthNum = in.nextInt();
+	    	monthName = in.next();
+	    	if (_monthNames.contains(monthName)) {
+				_output.printf(
+					"ERROR: budget already contains month %s%n",
+			    	monthName
+			    );
+				return null;
+	    	}
+	    	month = new Month(monthName, in.nextInt());
+	    	in.nextLine();
+	    	lineNum++;
+	    	String[] cats = in.nextLine().split(", ");
+	    	for (String cat : cats) {
+				if (cat.equals("Income")) {
+		    		containsIncome = true;
+				}
+				month.addCat(cat);
+	    	}
+	    	if (!containsIncome) {
+				_output.printf(
+					"ERROR: month %s has no 'Income' category%n",
+					monthName
+				);
+				return null;
+	    	}
+			while (in.hasNextLine()) {
+				lineNum++;
+				if (!in.hasNext()) {
+					break;
+				}
+	    		String cat = in.next();
+	    		int date = in.nextInt();
+	    		String name = in.next();
+	    		double amount = in.nextDouble();
+	    		month.addItem(cat, name, date, amount);
+			}
+		} catch (Exception e) {
+	    	String eMessage = String.format(
+	    		"line number %d has incorrect formatting%n",
+				lineNum
+			);
+	    	throw new RuntimeException(eMessage);
 		}
-		month.addCat(cat);
-	    }
-	    if (!containsIncome) {
-		_output.printf("ERROR: month %s has no 'Income' category%n",
-			       monthName);
-		return null;
-	    }
-	while (in.hasNextLine()) {
-	    lineNum++;
-	    String cat = in.next();
-	    int date = in.nextInt();
-	    String name = in.next();
-	    double amount = in.nextDouble();
-	    month.addItem(cat, name, date, amount);
-	}
-	} catch (Exception e) {
-	    String eMessage = String.format("line number %d has incorrect formatting%n",
-					    lineNum);
-	    throw new RuntimeException(eMessage);
-	}
-	_monthNames.add(monthName);
-	return month;
+		_monthNames.add(monthName);
+		return month;
     }
 
     /** Reads and executes a print command. */
     private void printCommand(String[] args) {
-	if (args.length != 2) {
-	    _output.println("ERROR: invalid print command");
-	    return;
-	}
-	switch (args[1]) {
-	case "months":
-	    if (_monthNames.size() == 0) {
-		_output.println("currently no loaded months");
-	    } else {
-		for (Month month : _budget.getMonths()) {
-		    _output.println(month.getName());
+		if (args.length != 2) {
+	    	_output.println("ERROR: invalid print command");
+	    	return;
 		}
-	    }
-	    return;
-	case "categories":
-	    if (_monthNames.size() == 0) {
-		_output.println("currently no loaded months");
-	    } else {
-		collectCats();
-		for (String cat : _cats) {
-		    _output.println(cat);
+		switch (args[1]) {
+			case "months":
+	    		if (_monthNames.size() == 0) {
+					_output.println("currently no loaded months");
+	    		} else {
+					for (Month month : _budget.getMonths()) {
+		    			_output.println(month.getName());
+					}
+	    		}
+	    		return;
+			case "categories":
+	    		if (_monthNames.size() == 0) {
+					_output.println("currently no loaded months");
+	    		} else {
+					collectCats();
+					for (String cat : _cats) {
+		    			_output.println(cat);
+					}
+	    		}
+	    		return;
+			default:
+	    		_output.println("ERROR: invalid print command");
+	    		return;
 		}
-	    }
-	    return;
-	default:
-	    _output.println("ERROR: invalid print command");
-	    return;
-	}
     }
 
     /** Reads and executes a report command. */
     private void reportCommand(String[] coms) {
-	if (coms.length != 2) {
-	    _output.println("ERROR: invalid report command");
-	    return;
-	}
-	if (coms[1].equals("budget")) {
-	    reportBudget(_output);
-	    return;
-	} else if (_monthNames.contains(coms[1])) {
-	    reportMonth(coms[1], _output);
-	    return;
-	}
-	collectCats();
-	if (_cats.contains(coms[1])) {
-	    reportCat(coms[1], _output);
-	    return;
-	}
-	_output.println("ERROR: invalid report command");
-	return;
+		if (coms.length != 2) {
+		    _output.println("ERROR: invalid report command");
+		    return;
+		}
+		if (coms[1].equals("budget")) {
+		    reportBudget(_output);
+		    return;
+		} else if (_monthNames.contains(coms[1])) {
+		    reportMonth(coms[1], _output);
+		    return;
+		}
+		collectCats();
+		if (_cats.contains(coms[1])) {
+		    reportCat(coms[1], _output);
+		    return;
+		}
+		_output.println("ERROR: invalid report command");
+		return;
     }
 
     /** Reports on the entire budget, outputting to OUTPUT. */
     private void reportBudget(PrintStream output) {
-	output.println();
-	double res = _budget.getTotal();
-	if (res < 0) {
-	    output.printf("  Your budget total is: -$%.2f%n", -res);
-	} else {
-	    output.printf("  Your budget total is: $%.2f%n", res);
-	}
-	double totInc = _budget.getTotal("Income");
-	output.printf("  Your total income is: $%.2f%n", totInc);
-	double expend = res - totInc;
-	if (expend < 0) {
-	    output.printf("  Your total expenditures amounted to: $%.2f%n", -expend);
-	} else {
-	    output.printf("  Your total expenditures amounted to: $%.2f%n", expend);
-	}
-	reportMonthlyTotals(output);
-	output.println();
-	for (Month month : _budget.getMonths()) {
-	    double dailyLoss = month.getLosses() / month.getDays();
-	    double inc = month.getTotal("Income");
-	    double dailyInc = inc / month.getDays();
-	    double dailyTot = dailyInc - dailyLoss;
-	    output.printf("   -Each day in %s you spent $%.2f ",
-			      month.getName(), dailyLoss);
-	    output.printf("and earned $%.2f,%n", dailyInc);
-	    if (dailyTot < 0) {
-		output.printf("    which is a daily net total of -$%.2f.%n",
-				  -dailyTot);
-	    } else {
-		output.printf("    which is a daily net total of $%.2f.%n",
-				  dailyTot);
-	    }
-	    if (inc > 0) {
-		for (String cat : month.getCats()) {
-		    if (!cat.equals("Income")) {
-			double tot = month.getTotal(cat);
-			if (tot < 0) {
-			    double perc = -100 * tot / inc;
-			    output.printf("      %.0f", perc);
-			    output.print("% of your income was spent on ");
-			    output.printf("%s.%n", cat);
-			}
-		    }
+		output.println();
+		double res = _budget.getTotal();
+		if (res < 0) {
+		    output.printf("  Your budget total is: -$%.2f%n", -res);
+		} else {
+		    output.printf("  Your budget total is: $%.2f%n", res);
 		}
-		if (month.getTotal() > 0) {
-		    double extra = 100 * month.getTotal() / inc;
-		    output.printf("      %.0f", extra);
-		    output.println("% of your income was unused.");
+		double totInc = _budget.getTotal("Income");
+		output.printf("  Your total income is: $%.2f%n", totInc);
+		double expend = res - totInc;
+		if (expend < 0) {
+		    output.printf("  Your total expenditures amounted to: $%.2f%n", -expend);
+		} else {
+		    output.printf("  Your total expenditures amounted to: $%.2f%n", expend);
 		}
-	    }
-	    output.println();
-	}
+		reportMonthlyTotals(output);
+		output.println();
+		for (Month month : _budget.getMonths()) {
+		    double dailyLoss = month.getLosses() / month.getDays();
+		    double inc = month.getTotal("Income");
+		    double dailyInc = inc / month.getDays();
+		    double dailyTot = dailyInc - dailyLoss;
+		    output.printf("   -Each day in %s you spent $%.2f ",
+				      month.getName(), dailyLoss);
+		    output.printf("and earned $%.2f,%n", dailyInc);
+	    	if (dailyTot < 0) {
+				output.printf(
+					"    which is a daily net total of -$%.2f.%n",
+					-dailyTot
+				);
+	    	} else {
+				output.printf(
+					"    which is a daily net total of $%.2f.%n",
+					dailyTot
+				);
+	    	}
+	    	if (inc > 0) {
+				for (String cat : month.getCats()) {
+			    	if (!cat.equals("Income")) {
+						double tot = month.getTotal(cat);
+						if (tot < 0) {
+				    		double perc = -100 * tot / inc;
+				    		output.printf("      %.0f", perc);
+				    		output.print("% of your income was spent on ");
+				    		output.printf("%s.%n", cat);
+						}
+		    		}
+				}
+				if (month.getTotal() > 0) {
+		    		double extra = 100 * month.getTotal() / inc;
+		    		output.printf("      %.0f", extra);
+		    		output.println("% of your income was unused.");
+				}
+	    	}
+	    	output.println();
+		}
     }
 
     /** Outputs the names of all the Months in _budget with their
      *  respective totals and 'Income' totals to OUTPUT. */
     private void reportMonthlyTotals(PrintStream output) {
-	if (_budget.getMonths().size() > 0) {
-	    output.println();
-	    for (Month month : _budget.getMonths()) {
-		String name = month.getName();
-		double total = month.getTotal();
-		double income = month.getTotal("Income");
-		double expend = total - income;
-		if (total < 0) {
-		    output.printf("  %s total: -$%.2f%n", name, -total);
-		} else {
-		    output.printf("  %s total: $%.2f%n", name, total);
+		if (_budget.getMonths().size() > 0) {
+	    	output.println();
+	    	for (Month month : _budget.getMonths()) {
+				String name = month.getName();
+				double total = month.getTotal();
+				double income = month.getTotal("Income");
+				double expend = total - income;
+				if (total < 0) {
+		    		output.printf("  %s total: -$%.2f%n", name, -total);
+				} else {
+		    		output.printf("  %s total: $%.2f%n", name, total);
+				}
+				output.printf("   *Income: $%.2f%n", income);
+				if (expend < 0) {
+		    		output.printf("   *Expenditures: $%.2f%n%n", -expend);
+				} else {
+		    		output.printf("   *Expenditures: $%.2f%n%n", expend);
+				}
+	    	}
 		}
-		output.printf("   *Income: $%.2f%n", income);
-		if (expend < 0) {
-		    output.printf("   *Expenditures: $%.2f%n%n", -expend);
-		} else {
-		    output.printf("   *Expenditures: $%.2f%n%n", expend);
-		}
-	    }
-	}
     }
 
 
