@@ -365,8 +365,7 @@ class CommandInterpreter {
 		    double inc = month.getTotal("Income");
 		    double dailyInc = inc / month.getDays();
 		    double dailyTot = dailyInc - dailyLoss;
-		    output.printf("   -Each day in %s you spent $%.2f ",
-				      month.getName(), dailyLoss);
+		    output.printf("   -Each day in %s you spent $%.2f ", month.getName(), dailyLoss);
 		    output.printf("and earned $%.2f,%n", dailyInc);
 	    	if (dailyTot < 0) {
 				output.printf(
@@ -431,272 +430,263 @@ class CommandInterpreter {
      *  Output goes to OUTPUT. */
     private void reportMonth(String month, PrintStream output) {
         output.println();
-	Month m  = _budget.getMonth(month);
-	double tot = m.getTotal();
-	if (tot < 0) {
-	    output.printf("  Your total for %s is: -$%.2f%n", month, -tot);
-	} else {
-	    output.printf("  Your total for %s is: $%.2f%n", month, tot);
-	}
-	double inc = m.getTotal("Income");
-	output.printf("  Your total income for %s is: $%.2f%n", month, inc);
-	double expend = tot - inc;
-	if (expend < 0) {
-	    output.printf("  Your total expenditures for %s amounted to: $%.2f%n%n", month, -expend);
-	} else {
-	    output.printf("  Your total expenditures for %s amounted to: $%.2f%n%n", month, expend);
-	}
-	for (String cat : m.getCats()) {
-	    if (cat.equals("Income")) {
-		continue;
-	    }
-	    double amount = -m.getTotal(cat);
-	    if (amount == 0) {
-		continue;
-	    }
-	    double perc = 100 * amount / inc;
-	    if (inc == 0) {
-		output.printf("   -You spent $%.2f on %s.%n", amount, cat);
-	    } else {
-		output.printf("   -You spent $%.2f on %s, which is %.0f",
-			      amount, cat, perc);
-		output.println("% of your income.");
-	    }
-	}
-	output.println();
-	double dailyLoss = m.getLosses() / m.getDays();
-	double dailyInc = inc / m.getDays();
-	double dailyTot = dailyInc - dailyLoss;
-	output.printf("   -Each day in %s you spent $%.2f ",
-		      month, dailyLoss);
-	output.printf("and earned $%.2f,%n", dailyInc);
-	if (dailyTot < 0) {
-	    output.printf("    which is a daily net total of -$%.2f.%n",
-			  -dailyTot);
-	} else {
-	    output.printf("    which is a daily net total of $%.2f.%n",
-			  dailyTot);
-	}
-	output.println();
+		Month m  = _budget.getMonth(month);
+		double tot = m.getTotal();
+		if (tot < 0) {
+	    	output.printf("  Your total for %s is: -$%.2f%n", month, -tot);
+		} else {
+	    	output.printf("  Your total for %s is: $%.2f%n", month, tot);
+		}
+		double inc = m.getTotal("Income");
+		output.printf("  Your total income for %s is: $%.2f%n", month, inc);
+		double expend = tot - inc;
+		if (expend < 0) {
+	    	output.printf("  Your total expenditures for %s amounted to: $%.2f%n%n", month, -expend);
+		} else {
+	    	output.printf("  Your total expenditures for %s amounted to: $%.2f%n%n", month, expend);
+		}
+		for (String cat : m.getCats()) {
+	    	if (cat.equals("Income")) {
+				continue;
+	    	}
+	    	double amount = -m.getTotal(cat);
+	    	if (amount == 0) {
+				continue;
+	    	}
+	    	double perc = 100 * amount / inc;
+	    	if (inc == 0) {
+				output.printf("   -You spent $%.2f on %s.%n", amount, cat);
+	    	} else {
+				output.printf("   -You spent $%.2f on %s, which is %.0f", amount, cat, perc);
+				output.println("% of your income.");
+	    	}
+		}
+		output.println();
+		double dailyLoss = m.getLosses() / m.getDays();
+		double dailyInc = inc / m.getDays();
+		double dailyTot = dailyInc - dailyLoss;
+		output.printf("   -Each day in %s you spent $%.2f ", month, dailyLoss);
+		output.printf("and earned $%.2f,%n", dailyInc);
+		if (dailyTot < 0) {
+	    	output.printf("    which is a daily net total of -$%.2f.%n", -dailyTot);
+		} else {
+	    	output.printf("    which is a daily net total of $%.2f.%n", dailyTot);
+		}
+		output.println();
     }
 
     /** Reports only on category CAT, which must be included in _cats.
      *  Output goes to OUTPUT. */
     private void reportCat(String cat, PrintStream output) {
-	if (cat.equals("Income")) {
-	    reportIncome(output);
-	    return;
-	}
-	output.println();
-	double total = 0;
-	double income = 0;
-	for (Month month : _budget.getMonths()) {
-	    if (month.containsCat(cat)) {
-		double monthTot = month.getTotal(cat);
-		double monthInc = month.getTotal("Income");
-		double monthPerc = 100 * monthTot / monthInc;
-		income += monthInc;
-		if (monthTot < 0) {
-		    total -= monthTot;
-		    output.printf("  -In %s you spent $%.2f on %s",
-				  month.getName(), -monthTot, cat);
-		} else {
-		    total += monthTot;
-		    output.printf("  -In %s you spent $%.2f on %s",
-				  month.getName(), monthTot, cat);
+		if (cat.equals("Income")) {
+	    	reportIncome(output);
+	    	return;
 		}
-		if (monthInc > 0 && monthTot < 0) {
-		    output.printf("%n   which was %.0f", -monthPerc);
-		    output.print("% of your income that month");
-		} else if (monthInc > 0) {
-		    output.printf("%n   which was %.0f", monthPerc);
-		    output.print("% of your income that month");
+		output.println();
+		double total = 0;
+		double income = 0;
+		for (Month month : _budget.getMonths()) {
+	    	if (month.containsCat(cat)) {
+				double monthTot = month.getTotal(cat);
+				double monthInc = month.getTotal("Income");
+				double monthPerc = 100 * monthTot / monthInc;
+				income += monthInc;
+				if (monthTot < 0) {
+		    		total -= monthTot;
+		    		output.printf("  -In %s you spent $%.2f on %s", month.getName(), -monthTot, cat);
+				} else {
+		    		total += monthTot;
+		    		output.printf("  -In %s you spent $%.2f on %s", month.getName(), monthTot, cat);
+				}
+				if (monthInc > 0 && monthTot < 0) {
+		    		output.printf("%n   which was %.0f", -monthPerc);
+		    		output.print("% of your income that month");
+				} else if (monthInc > 0) {
+		    		output.printf("%n   which was %.0f", monthPerc);
+		    		output.print("% of your income that month");
+				}
+				output.printf("%n%n");
+	    	}
+		}
+		double percent = 100 * total / income;
+		if (income > 0) {
+	    	output.printf("  * Overall you spent $%.2f on %s,%n    using %.0f", total, cat, percent);
+	    	output.print("% of your total income.");
+		} else {
+	    	output.printf("  * Overall you spent $%.2f on %s.", total, cat);
 		}
 		output.printf("%n%n");
-	    }
-	}
-	double percent = 100 * total / income;
-	if (income > 0) {
-	    output.printf("  * Overall you spent $%.2f on %s,%n    using %.0f",
-			  total, cat, percent);
-	    output.print("% of your total income.");
-	} else {
-	    output.printf("  * Overall you spent $%.2f on %s.",
-			  total, cat);
-	}
-	output.printf("%n%n");
     }
 
     /** Reports on Income only to PrintStream OUTPUT. */
     private void reportIncome(PrintStream output) {
-	output.println();
-	double income = 0;
-	double losses = 0;
-	for (Month month : _budget.getMonths()) {
-	    double monthInc = month.getTotal("Income");
-	    double monthLoss = month.getLosses();
-	    income += monthInc;
-	    losses += monthLoss;
-	    output.printf("  In %s you made $%.2f%n",
-			  month.getName(), monthInc);
-	    if (monthInc > 0) {
-		double perc = 100 * monthLoss / monthInc;
-		output.printf("   -You spent $%.2f, which was %.0f",
-			      monthLoss, perc);
-		output.println("% of your income");
-	    } else {
-		output.printf("   -You spent $%.2f%n", monthLoss);
-	    }
-	}
-	output.printf("%n  Overall you made $%.2f%n", income);
-	if (income > 0 && losses > 0) {
-	    output.printf("   -Overall you spent $%.2f,%n    which was %.0f",
-			  losses, 100 * losses / income);
-	    output.print("% of your total income.");
-	    output.printf("%n%n");
-	} else {
-	    output.printf("   -Overall you spent $%.2f,%n%n", losses);
-	}
+		output.println();
+		double income = 0;
+		double losses = 0;
+		for (Month month : _budget.getMonths()) {
+	    	double monthInc = month.getTotal("Income");
+	    	double monthLoss = month.getLosses();
+	    	income += monthInc;
+	    	losses += monthLoss;
+	    	output.printf("  In %s you made $%.2f%n", month.getName(), monthInc);
+	    	if (monthInc > 0) {
+				double perc = 100 * monthLoss / monthInc;
+				output.printf("   -You spent $%.2f, which was %.0f", monthLoss, perc);
+				output.println("% of your income");
+	    	} else {
+				output.printf("   -You spent $%.2f%n", monthLoss);
+	    	}
+		}
+		output.printf("%n  Overall you made $%.2f%n", income);
+		if (income > 0 && losses > 0) {
+	    	output.printf(
+	    		"   -Overall you spent $%.2f,%n    which was %.0f",
+	    		losses,
+	    		100 * losses / income
+	    	);
+	    	output.print("% of your total income.");
+	    	output.printf("%n%n");
+		} else {
+	    	output.printf("   -Overall you spent $%.2f,%n%n", losses);
+		}
     }
 
     /** Reads and executes a save command. */
     private void saveCommand(String[] args) {
-	if (_monthNames.size() == 0) {
-	    _output.println("currently no loaded months");
-	    return;
-	}
-	if (args[1].equals("select")) {
-	    saveSelectCommand(args);
-	    return;
-	}
-	if (args.length != 4 || !args[2].equals("as")) {
-	    _output.println("ERROR: invalid save command");
-	    return;
-	}
-	collectCats();
-	PrintStream out = null;
-	try {
-	    if (args[1].equals("budget")) {
-		out = new PrintStream(args[3] + ".txt");
-		reportBudget(out);
-		_output.printf("saved budget report as %s.txt%n", args[3]);
-	    } else if (_monthNames.contains(args[1])) {
-		out = new PrintStream(args[3] + ".txt");
-		reportMonth(args[1], out);
-		_output.printf("saved %s report as %s.txt%n",
-			       args[1], args[3]);
-	    } else if (args[1].equals("Income")) {
-		out = new PrintStream(args[3] + ".txt");
-		reportIncome(out);
-		_output.printf("saved Income report as %s.txt%n", args[3]);
-	    } else if (_cats.contains(args[1])) {
-		out = new PrintStream(args[3] + ".txt");
-		reportCat(args[1], out);
-		_output.printf("saved %s report as %s.txt%n",
-			       args[1], args[3]);
-	    } else {
-		_output.printf("ERROR: cannot report on %s%n", args[1]);
-	    }
-	} catch (FileNotFoundException e) {
-	    _output.printf("ERROR: trouble writing to %s.txt%n", args[3]);
-	} finally {
-	    if (out != null) {
-		out.close();
-	    }
-	}
+		if (_monthNames.size() == 0) {
+	    	_output.println("currently no loaded months");
+	    	return;
+		}
+		if (args[1].equals("select")) {
+	    	saveSelectCommand(args);
+	    	return;
+		}
+		if (args.length != 4 || !args[2].equals("as")) {
+	    	_output.println("ERROR: invalid save command");
+	    	return;
+		}
+		collectCats();
+		PrintStream out = null;
+		try {
+	    	if (args[1].equals("budget")) {
+				out = new PrintStream(args[3] + ".txt");
+				reportBudget(out);
+				_output.printf("saved budget report as %s.txt%n", args[3]);
+	    	} else if (_monthNames.contains(args[1])) {
+				out = new PrintStream(args[3] + ".txt");
+				reportMonth(args[1], out);
+				_output.printf("saved %s report as %s.txt%n", args[1], args[3]);
+	    	} else if (args[1].equals("Income")) {
+				out = new PrintStream(args[3] + ".txt");
+				reportIncome(out);
+				_output.printf("saved Income report as %s.txt%n", args[3]);
+	    	} else if (_cats.contains(args[1])) {
+				out = new PrintStream(args[3] + ".txt");
+				reportCat(args[1], out);
+				_output.printf("saved %s report as %s.txt%n", args[1], args[3]);
+	    	} else {
+				_output.printf("ERROR: cannot report on %s%n", args[1]);
+	    	}
+		} catch (FileNotFoundException e) {
+	    	_output.printf("ERROR: trouble writing to %s.txt%n", args[3]);
+		} finally {
+	    	if (out != null) {
+				out.close();
+	    	}
+		}
     }
 
     /** Performs a save select command in which the results of a select query
 	are saved as a text file. */
     private void saveSelectCommand(String[] args) {
         if (!args[args.length - 2].equals("as")) {
-	    _output.printf("ERROR: invalid save select command%n");
-	    return;
-	}
-	PrintStream out = null;
-	try {
-	    out = new PrintStream(args[args.length - 1] + ".txt");
-	    selectCommand(Arrays.copyOfRange(args, 1, args.length - 2), out);
-	    _output.printf("saved query as %s.txt%n", args[args.length - 1]);
-	} catch (FileNotFoundException e) {
-	    _output.printf("ERROR: trouble writing to %s.txt%n", args[args.length - 1]);
-	} finally {
-	    if (out != null) {
-		out.close();
-	    }
-	}
+	    	_output.printf("ERROR: invalid save select command%n");
+	    	return;
+		}
+		PrintStream out = null;
+		try {
+	    	out = new PrintStream(args[args.length - 1] + ".txt");
+	    	selectCommand(Arrays.copyOfRange(args, 1, args.length - 2), out);
+	    	_output.printf("saved query as %s.txt%n", args[args.length - 1]);
+		} catch (FileNotFoundException e) {
+	    	_output.printf("ERROR: trouble writing to %s.txt%n", args[args.length - 1]);
+		} finally {
+	    	if (out != null) {
+				out.close();
+	    	}
+		}
     }
 
     /** Performs a select operation by only outputting the months
 	that meet the given conditions.*/
     private void selectCommand(String[] args, PrintStream output) {
-	if (_monthNames.size() == 0) {
-	    _output.println("currently no loaded months");
-	    return;
-	}
-	if (!(args[1].equals("months") && args[2].equals("where"))) {
-	    _output.println("ERROR: invalid select command");
-	    return;
-	}
-	ArrayList<Condition> conds = parseConditions(Arrays.copyOfRange(args, 3,
-									args.length));
-	if (conds == null) {
-	    return;
-	}
-	ArrayList<Pair<String, ArrayList<Pair<String, Double>>>> dataList =
-	    Condition.filter(conds, _budget);
-	output.printf("query results:%n%n");
-	for (Pair item : dataList) {
-	    output.printf("  %s:%n", ((Month)item.getLeft()).getName());
-	    for (Pair result : (ArrayList<Pair<String, Double>>)item.getRight()) {
-		double catVal = (double)result.getRight();
-		if (catVal < 0) {
-		    output.printf("   -%s: -$%.2f%n", result.getLeft(), -catVal);
-		} else {
-		    output.printf("   -%s: $%.2f%n", result.getLeft(), catVal);
+		if (_monthNames.size() == 0) {
+	    	_output.println("currently no loaded months");
+	    	return;
 		}
-	    }
-	    output.println();
-	}
+		if (!(args[1].equals("months") && args[2].equals("where"))) {
+	    	_output.println("ERROR: invalid select command");
+	    	return;
+		}
+		ArrayList<Condition> conds = parseConditions(
+			Arrays.copyOfRange(args, 3, args.length));
+		if (conds == null) {
+	    	return;
+		}
+		ArrayList<Pair<String, ArrayList<Pair<String, Double>>>> dataList =
+	    		Condition.filter(conds, _budget);
+		output.printf("query results:%n%n");
+		for (Pair item : dataList) {
+	    	output.printf("  %s:%n", ((Month)item.getLeft()).getName());
+	    	for (Pair result : (ArrayList<Pair<String, Double>>)item.getRight()) {
+				double catVal = (double)result.getRight();
+				if (catVal < 0) {
+		    		output.printf("   -%s: -$%.2f%n", result.getLeft(), -catVal);
+				} else {
+		    		output.printf("   -%s: $%.2f%n", result.getLeft(), catVal);
+				}
+	    	}
+	    	output.println();
+		}
     }
 
     /** Parses input array ARGS as a list of condition statements and returns a list
      *  of corresponding Condition objects. Returns NULL if any error occurs. */
     ArrayList<Condition> parseConditions(String[] args) {
-	collectCats();
-	if ((args.length % 4) != 3) {
-	    _output.println("ERROR: invalid select command");
-	    return null;
-	}
-	ArrayList<Condition> conds = new ArrayList<Condition>();
-	for (int i = 0; i < args.length; i += 4) {
-	    if (!(_cats.contains(args[i]) || args[i].equals("Total") ||
-		  args[i].equals("Expenditures"))) {
-		_output.printf("ERROR: %s is not a loaded category%n", args[i]);
-		return null;
-	    }
-	    if (!(args[i+1].equals("==") || args[i+1].equals("!=") || args[i+1].equals("<")
-		  || args[i+1].equals("<=") || args[i+1].equals(">=") ||
-		  args[i+1].equals(">"))) {
-		_output.printf("ERROR: %s is not a valid comparator%n", args[i+1]);
-		return null;
-	    }
-	    double value;
-	    try {
-		value = Double.parseDouble(args[i+2]);
-	    } catch (Exception e) {
-		_output.printf("ERROR: %s is an invalid value%n", args[i+2]);
-		return null;
-	    }
-	    conds.add(new Condition(args[i], new DoubleComparator(args[i+1]), value));
-	    if ((i + 3) == args.length) {
-		break;
-	    } else if (!args[i+3].equals("and")) {
-		_output.println("ERROR: invalid select command");
-		return null;
-	    }
-	}
-	return conds;
+		collectCats();
+		if ((args.length % 4) != 3) {
+	    	_output.println("ERROR: invalid select command");
+	    	return null;
+		}
+		ArrayList<Condition> conds = new ArrayList<Condition>();
+		for (int i = 0; i < args.length; i += 4) {
+	    	if (!(_cats.contains(args[i]) || args[i].equals("Total") ||
+		  		args[i].equals("Expenditures"))) {
+				_output.printf("ERROR: %s is not a loaded category%n", args[i]);
+				return null;
+	    	}
+	    	if (!(args[i+1].equals("==") || args[i+1].equals("!=")
+	    			|| args[i+1].equals("<") || args[i+1].equals("<=")
+	    			|| args[i+1].equals(">=") || args[i+1].equals(">"))) {
+					_output.printf("ERROR: %s is not a valid comparator%n", args[i+1]);
+				return null;
+	    	}
+	    	double value;
+	    	try {
+				value = Double.parseDouble(args[i+2]);
+	    	} catch (Exception e) {
+				_output.printf("ERROR: %s is an invalid value%n", args[i+2]);
+				return null;
+	    	}
+	    	conds.add(new Condition(args[i], new DoubleComparator(args[i+1]), value));
+	    	if ((i + 3) == args.length) {
+				break;
+	    	} else if (!args[i+3].equals("and")) {
+				_output.println("ERROR: invalid select command");
+			return null;
+	    	}
+		}
+		return conds;
     }
 
     private static class BGIFileFilter implements FilenameFilter {
