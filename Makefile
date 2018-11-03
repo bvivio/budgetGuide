@@ -1,8 +1,8 @@
 default:
-	javac bg/*.java
+	@javac bg/*.java
 
 clean:
-	rm bg/*.class
+	@rm bg/*.class
 
 run:
-	java bg.Main
+	@java bg.Main
